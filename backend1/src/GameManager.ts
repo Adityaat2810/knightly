@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { INIT_GAME } from "./messages";
+import { INIT_GAME, MOVE } from "./messages";
 import { Game } from "./Game";
 
 
@@ -29,6 +29,8 @@ export class GameManager{
     private addHandler(socket: WebSocket){
         socket.on('message', (data)=>{
             const message = JSON.parse(data.toString())
+
+            // Initialize game
             if(message.type === INIT_GAME){
                 if(this.pendingUser){
                     // if pending user ==> pair current user with him
@@ -38,7 +40,16 @@ export class GameManager{
                 }else{
                     // if no pending user make current pending
                     this.pendingUser = socket
-                } 
+                }
+            }
+
+            // Make move
+            if(message.type === MOVE){
+                const game = this.games.find(game => game.player1 === socket || game.player2 === socket);
+                if(game){
+                    game.makeMove(socket, message.move)
+                }
+
             }
         })
     }
