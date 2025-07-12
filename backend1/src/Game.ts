@@ -8,6 +8,7 @@ export class Game {
     public board: Chess
     public moves: String[];
     public startTime: Date;
+    private moveCount = 0;
 
     constructor( player1: WebSocket, player2 : WebSocket){
         this.player1 = player1;
@@ -43,12 +44,12 @@ export class Game {
          */
 
         // even move made ---> player 1 turn now
-        if(this.board.moves.length % 2 == 0 && socket !== this.player1){
+        if(this.moveCount % 2 == 0 && socket !== this.player1){
             return
         }
 
         // odd move made --> player 2 turn now
-        if( this.board.moves.length % 2 != 0 && socket !== this.player2){
+        if( this.moveCount % 2 != 0 && socket !== this.player2){
             return
         }
 
@@ -57,7 +58,7 @@ export class Game {
         // update the board
         // push the move
         try{
-            this.board.move(move)
+            this.board.move(move);
         }catch(error){
             console.log(error)
             return;
@@ -75,7 +76,7 @@ export class Game {
         }
 
         // send the updated board to both player
-        if(this.board.moves.length % 2 === 0){
+        if(this.moveCount % 2 === 0){
             // p1 makes move send to p2
             this.player2.send(JSON.stringify({
                 type: MOVE,
@@ -90,6 +91,7 @@ export class Game {
             }))
         }
 
-
+        // Increase move count 
+        this.moveCount ++;
     }
 }
