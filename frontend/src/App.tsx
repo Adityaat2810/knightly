@@ -6,7 +6,7 @@ import Game from './pages/Game'
 function App() {
 
   return (
-    <>
+    <div className='h-screen bg-slate-900'>
       <BrowserRouter>
         <Routes>
           <Route path='/' element={<Landing/>}/>
@@ -14,7 +14,7 @@ function App() {
 
         </Routes>
       </BrowserRouter>
-    </>
+    </div>
   )
 }
 
