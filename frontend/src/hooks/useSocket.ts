@@ -21,7 +21,7 @@ export const useSocket = () => {
         return ()=> {
             ws.close();
         }
-    })
+    },[])
 
     return socket
 }
