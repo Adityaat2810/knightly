@@ -23,35 +23,7 @@ export const ChessBoard = ({chess, setBoard, board, socket}:{
   const moveSound = new Audio('/move.wav');
   const captureSound = new Audio('/capture.wav');
   const [from, setFrom] = useState<null | Square>(null)
-
-  // const handleSquareClick = (square: Square) => {
-  //   if (!from) {
-  //     setFrom(square);
-  //     return;
-  //   }
-
-  //   const move = { from, to: square };
-  //     let result = null;
-
-  //     try {
-  //       result = chess.move(move);
-  //     } catch (error) {
-  //       console.error("💥 Error while executing move:", error);
-  //     }
-
-  //     if (result) {
-  //       socket.send(JSON.stringify({
-  //         type: MOVE,
-  //         payload: { move }
-  //       }));
-  //       setBoard(chess.board());
-  //       console.log("Valid move:", move);
-  //     } else {
-  //       console.warn("Invalid move:", move);
-  //     }
-
-  //     setFrom(null);
-  // };
+  
   const handleSquareClick = (square: Square) => {
   if (!from) {
     setFrom(square);
@@ -70,9 +42,13 @@ export const ChessBoard = ({chess, setBoard, board, socket}:{
   if (result) {
     // 🔊 Play sound based on move type
     if (result.captured) {
+
       captureSound.play();
     } else {
+      console.log('Playing sound')
       moveSound.play();
+      console.log('Playing sound played ')
+
     }
 
     socket.send(
