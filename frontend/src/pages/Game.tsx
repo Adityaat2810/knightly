@@ -28,7 +28,7 @@ export default function Game(){
         console.log(message);
         switch (message.type){
             case INIT_GAME:
-                setChess(new Chess())
+                // setChess(new Chess())
                 setBoard(chess.board())
                 console.log("GAME INITIALIZED !")
                 break;
@@ -55,7 +55,7 @@ export default function Game(){
       <div className="pt-8 max-w-screen-lg w-full">
         <div className="grid grid-cols-6 gap-4 w-full">
           <div className="col-span-4  w-full flex justify-center">
-            <ChessBoard board={board}/>
+            <ChessBoard chess={chess} setBoard={setBoard} board={board} socket={socket}/>
           </div>
 
           <div className="col-span-2 bg-slate-800 w-full flex justify-center">
