@@ -20,16 +20,9 @@ export const ChessBoard = ({chess, setBoard, board, socket}:{
 
 
 }) => {
-
+  const moveSound = new Audio('/move.wav');
+  const captureSound = new Audio('/capture.wav');
   const [from, setFrom] = useState<null | Square>(null)
-  const pieceUnicodeMap: Record<PieceSymbol, { w: string; b: string }> = {
-    p: { w: "♙", b: "♟︎" },
-    r: { w: "♖", b: "♜" },
-    n: { w: "♘", b: "♞" },
-    b: { w: "♗", b: "♝" },
-    q: { w: "♕", b: "♛" },
-    k: { w: "♔", b: "♚" },
-  };
 
   // const handleSquareClick = (square: Square) => {
   //   if (!from) {
@@ -38,20 +31,26 @@ export const ChessBoard = ({chess, setBoard, board, socket}:{
   //   }
 
   //   const move = { from, to: square };
-  //   const result = chess.move(move);
+  //     let result = null;
 
-  //   if (result) {
-  //     socket.send(JSON.stringify({
-  //       type: MOVE,
-  //       payload: { move }
-  //     }));
-  //     setBoard(chess.board());
-  //     console.log("Valid move:", move);
-  //   } else {
-  //     console.warn("Invalid move:", move);
-  //   }
+  //     try {
+  //       result = chess.move(move);
+  //     } catch (error) {
+  //       console.error("💥 Error while executing move:", error);
+  //     }
 
-  //   setFrom(null); // always reset selection after second click
+  //     if (result) {
+  //       socket.send(JSON.stringify({
+  //         type: MOVE,
+  //         payload: { move }
+  //       }));
+  //       setBoard(chess.board());
+  //       console.log("Valid move:", move);
+  //     } else {
+  //       console.warn("Invalid move:", move);
+  //     }
+
+  //     setFrom(null);
   // };
   const handleSquareClick = (square: Square) => {
   if (!from) {
@@ -69,21 +68,28 @@ export const ChessBoard = ({chess, setBoard, board, socket}:{
   }
 
   if (result) {
-    socket.send(JSON.stringify({
-      type: MOVE,
-      payload: { move }
-    }));
+    // 🔊 Play sound based on move type
+    if (result.captured) {
+      captureSound.play();
+    } else {
+      moveSound.play();
+    }
+
+    socket.send(
+      JSON.stringify({
+        type: MOVE,
+        payload: { move },
+      })
+    );
+
     setBoard(chess.board());
-    console.log("✅ Valid move:", move);
+    console.log("Valid move:", move);
   } else {
-    console.warn("❌ Invalid move:", move);
+    console.warn("Invalid move:", move);
   }
 
-  setFrom(null); // always reset
+  setFrom(null);
 };
-
-
-
 
   return (
     <div className="text-black">
@@ -92,14 +98,24 @@ export const ChessBoard = ({chess, setBoard, board, socket}:{
                 {row.map((square, j)=>{
                   const squareRepresentation =(String.fromCharCode('a'.charCodeAt(0) + j) + (8 - i)) as Square;
 
-                    return <div
-                      key={j} className={`w-16 h-16 ${(i+j)%2 ==0 ? 'bg-green-500' : 'bg-green-100'}`}
-                      onClick={()=>handleSquareClick(squareRepresentation)}
-                    >
-                        <div className="w-full justify-center flex h-full">
-                            <div className="h-full justify-center flex flex-col text-3xl">{square ? pieceUnicodeMap[square.type][square.color] : ''}</div>
+                    return (
+                      <div
+                        key={j}
+                        className={`w-16 h-16 ${(i + j) % 2 === 0 ? 'bg-green-500' : 'bg-green-100'}`}
+                        onClick={() => handleSquareClick(squareRepresentation)}
+                      >
+                        <div className="w-full h-full flex justify-center items-center">
+                          {square && (
+                            <img
+                              src={`/${square.color}${square.type}.png`} // from public/
+                              alt={`${square.color}${square.type}`}
+                              className="w-12 h-12 object-contain"
+                            />
+                          )}
                         </div>
-                    </div>
+                      </div>
+                    );
+
                 })}
 
             </div>
