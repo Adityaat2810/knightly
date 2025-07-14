@@ -65,15 +65,22 @@ export class Game {
         }
 
         // check if the game is over
-        if(this.board.isGameOver()){
-            // send it t both parties
-            this.player1.emit(JSON.stringify({
+        if (this.board.isGameOver()) {
+            const winner = this.board.turn() === 'w' ? 'black' : 'white';
+
+            this.player1.send(JSON.stringify({
                 type: GAME_OVER,
-                payload: {
-                    winner : this.board.turn() === 'w' ? 'black': 'white'
-                }
-            }))
+                payload: { winner }
+            }));
+
+            this.player2.send(JSON.stringify({
+                type: GAME_OVER,
+                payload: { winner }
+            }));
+
+            return;
         }
+
 
         // send the updated board to both player
         if(this.moveCount % 2 === 0){
@@ -91,7 +98,7 @@ export class Game {
             }))
         }
 
-        // Increase move count 
+        // Increase move count
         this.moveCount ++;
     }
 }
