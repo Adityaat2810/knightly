@@ -53,7 +53,7 @@ const Landing: React.FC = () => {
   };
 
   const handlePlayWithFriend = (): void => {
-    console.log('Play with Friend clicked');
+    naviagte('/login')
   };
 
   return (

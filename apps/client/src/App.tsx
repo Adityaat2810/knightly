@@ -2,6 +2,7 @@ import './App.css'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Landing from './pages/Landing'
 import Game from './pages/Game'
+import Login from './pages/Login'
 
 function App() {
 
@@ -10,6 +11,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path='/' element={<Landing/>}/>
+           <Route path='/login' element={<Login/>}/>
           <Route path='/game' element={<Game/>}/>
 
         </Routes>
