@@ -13,9 +13,11 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@prisma/client": "5.12.1",
     "@repo/db": "workspace:^",
     "@types/ws": "^8.18.1",
     "chess.js": "^1.4.0",
+    "prisma": "^5.22.0",
     "typescript": "^5.8.3",
     "ws": "^8.18.3"
   }
