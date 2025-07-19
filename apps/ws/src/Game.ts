@@ -122,6 +122,9 @@ export class Game {
 
   async updateSecondPlayer(player2UserId: string){
     this.player2UserId = player2UserId
+
+    
+
     const users = await db.user.findMany({
       where: {
         id: {
@@ -129,6 +132,8 @@ export class Game {
         },
       },
     });
+
+    console.log('Users found: from db', users);
 
     try{
       await this.createGameInDb();

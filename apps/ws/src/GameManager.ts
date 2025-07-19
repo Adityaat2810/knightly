@@ -19,8 +19,18 @@ export class GameManager{
       this.users = [];
     }
 
-    addUser(user: User){
+    async addUser(user: User){
+      console.log('Adding user');
       this.users.push(user)
+      // TODO: tempory bypass user from authentication 
+      await db.user.create({
+        data: {
+          id: user.userId,
+          name: user.name,
+          email: `user@${user.userId}.example.com`,
+          provider:'GUEST'
+        },
+      })
       this.addHandler(user)
     }
 
@@ -41,11 +51,13 @@ export class GameManager{
     }
 
     private addHandler(user: User){
+      console.log('Adding handler for user', user.name, user.id);
       user.socket.on('message', async (data)=>{
         const message = JSON.parse(data.toString())
         // Initialize game
         if(message.type === INIT_GAME){
           if(this.pendingGameId){
+            console.log('Pending game found, pairing users');
             // if pending user ==> pair current user with him
             const game = this.games.find((x) => x.gameId === this.pendingGameId);
             if (!game) {
@@ -64,10 +76,15 @@ export class GameManager{
               )
               return
             }
+
+            console.log('Pairing users');
             socketManager.addUser(user, game.gameId)
+            console.log('Updating second player');
             await game?.updateSecondPlayer(user.userId)
+            console.log('Game updated with second player');
             this.pendingGameId = null
           }else{
+            console.log('Creating new game');
             // if no pending user make current pending
             const game = new Game(user.userId, null)
             this.games.push(game)
@@ -109,32 +126,38 @@ export class GameManager{
 
         // Join room
         if(message.type === JOIN_GAME){
+          console.log('User trying to join game');
           const gameId = message.payload?.gameId
+          console.log('Game ID:', gameId);
           if(!gameId) return;
 
           let availableGame = this.games.find(
             (game)=> game.gameId === gameId
           )
+          console.log('Available game found:', availableGame);
 
-          const gameFromDb = await db.game.findUnique({
-            where: { id: gameId },
-            include: {
-              moves: {
-                orderBy:{
-                  moveNumber: 'asc'
-                },
-              },
-              blackPlayer: true,
-              whitePlayer: true
-            }
 
-          })
+
 
           if(availableGame && !availableGame.player2UserId){
             socketManager.addUser(user, availableGame.gameId)
             await availableGame.updateSecondPlayer(user.userId)
             return;
           }
+
+
+          const gameFromDb = await db.game.findUnique({
+            where: { id: gameId },
+            include: {
+              moves: {
+                orderBy: {
+                  moveNumber: 'asc',
+                },
+              },
+              blackPlayer: true,
+              whitePlayer: true,
+            },
+          });
 
           if(!gameFromDb){
             user.socket.send(
@@ -145,7 +168,7 @@ export class GameManager{
             return;
           }
 
-          if(gameFromDb.status !== GameStatus.IN_PROGRESS){
+          if(gameFromDb.status !== GameStatus.IN_PROGRESS) {
             user.socket.send(JSON.stringify({
               type: GAME_ENDED,
               payload: {
@@ -154,26 +177,24 @@ export class GameManager{
                 moves: gameFromDb.moves,
                 blackPlayer: {
                   id: gameFromDb.blackPlayer.id,
-                  name: gameFromDb.blackPlayer.name
+                  name: gameFromDb.blackPlayer.name,
                 },
-                whitePlayer:{
+                whitePlayer: {
                   id: gameFromDb.whitePlayer.id,
-                  name: gameFromDb.whitePlayer.id
-                }
+                  name: gameFromDb.whitePlayer.name,
+                },
               }
             }));
-
-            return
+            return;
           }
 
-          if(!availableGame){
+          if (!availableGame) {
             const game = new Game(
               gameFromDb?.whitePlayerId!,
               gameFromDb?.blackPlayerId!,
               gameFromDb.id,
               gameFromDb.startAt,
             );
-
             game.seedMoves(gameFromDb?.moves || []);
             this.games.push(game);
             availableGame = game;
@@ -200,9 +221,10 @@ export class GameManager{
                 player2TimeConsumed: availableGame.getPlayer2TimeConsumed(),
               },
             }),
-          )
+          );
 
           socketManager.addUser(user, gameId);
+
         }
       })
     }
