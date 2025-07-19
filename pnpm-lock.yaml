@@ -158,6 +158,9 @@ importers:
 
   apps/ws:
     dependencies:
+      '@prisma/client':
+        specifier: 5.12.1
+        version: 5.12.1(prisma@5.22.0)
       '@repo/db':
         specifier: workspace:^
         version: link:../../packages/db
@@ -170,6 +173,9 @@ importers:
       chess.js:
         specifier: ^1.4.0
         version: 1.4.0
+      prisma:
+        specifier: ^5.22.0
+        version: 5.22.0
       typescript:
         specifier: ^5.8.3
         version: 5.8.3

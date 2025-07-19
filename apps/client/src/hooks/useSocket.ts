@@ -1,27 +1,68 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react";
 
-const WS_URL="ws://localhost:8080"
+const WS_URL = "ws://localhost:8080";
 
 export const useSocket = () => {
-    const [socket, setSocket] = useState<WebSocket | null>(null)
+  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('connecting');
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectAttempts = useRef(0);
+  const maxReconnectAttempts = 5;
 
-    useEffect(()=>{
-        const ws = new WebSocket(WS_URL);
+  const connectSocket = () => {
+    console.log("Attempting to connect to WebSocket...");
+    setConnectionStatus('connecting');
 
-        ws.onopen = () => {
-            setSocket(ws)
+    try {
+      const ws = new WebSocket(WS_URL);
+
+      ws.onopen = () => {
+        setSocket(ws);
+        setConnectionStatus('connected');
+        reconnectAttempts.current = 0;
+      };
+
+      ws.onclose = (event) => {
+        setSocket(null);
+        setConnectionStatus('disconnected');
+
+        if (event.code !== 1000 && reconnectAttempts.current < maxReconnectAttempts) {
+          reconnectAttempts.current++;
+
+          reconnectTimeoutRef.current = setTimeout(() => {
+            connectSocket();
+          }, 2000 * reconnectAttempts.current); // Exponential backoff
+        } else if (reconnectAttempts.current >= maxReconnectAttempts) {
+          setConnectionStatus('error');
         }
+      };
 
-        ws.onclose = () => {
-            console.log("disconnected")
-            setSocket(null);
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+        setConnectionStatus('error');
+      };
 
-        }
+      return ws;
+    } catch (error) {
+      console.error("Failed to create WebSocket:", error);
+      setConnectionStatus('error');
+      return null;
+    }
+  };
 
-        return ()=> {
-            ws.close();
-        }
-    },[])
+  useEffect(() => {
+    const ws = connectSocket();
 
-    return socket
-}
+    return () => {
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close(1000, "Component unmounting");
+      }
+    };
+  }, []);
+
+  return { socket, connectionStatus };
+};
