@@ -22,15 +22,6 @@ export class GameManager{
     async addUser(user: User){
       console.log('Adding user');
       this.users.push(user)
-      // TODO: tempory bypass user from authentication 
-      await db.user.create({
-        data: {
-          id: user.userId,
-          name: user.name,
-          email: `user@${user.userId}.example.com`,
-          provider:'GUEST'
-        },
-      })
       this.addHandler(user)
     }
 

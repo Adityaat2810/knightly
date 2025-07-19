@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { WebSocket } from 'ws';
+import { userJwtClaims } from './auth';
 
 export class User {
   public socket: WebSocket;
@@ -8,12 +9,12 @@ export class User {
   public name: string;
   public isGuest?: boolean;
 
-  constructor(socket: WebSocket, userId: string, name: string, isGuest: boolean = false) {
+  constructor(socket: WebSocket, userJwtClaims: userJwtClaims) {
     this.socket = socket;
-    this.userId = userId;
+    this.userId = userJwtClaims.userId;
     this.id = randomUUID();
-    this.name = name;
-    this.isGuest = isGuest;
+    this.name = userJwtClaims.name;
+    this.isGuest = userJwtClaims.isGuest;
   }
 }
 
@@ -28,9 +29,11 @@ class SocketManager {
   }
 
   static getInstance() {
-    if (!SocketManager.instance) {
-      SocketManager.instance = new SocketManager();
+    if (SocketManager.instance) {
+      return SocketManager.instance;
     }
+
+    SocketManager.instance = new SocketManager();
     return SocketManager.instance;
   }
 
@@ -60,18 +63,19 @@ class SocketManager {
       console.error('User was not interested in any room?');
       return;
     }
-
-    const room = this.interestedSockets.get(roomId) || [];
-    const remainingUsers = room.filter((u) => u.userId !== user.userId);
-
-    if (remainingUsers.length === 0) {
+    const room = this.interestedSockets.get(roomId) || []
+    const remainingUsers = room.filter(u =>
+      u.userId !== user.userId
+    )
+    this.interestedSockets.set(
+      roomId,
+      remainingUsers
+    );
+    if (this.interestedSockets.get(roomId)?.length === 0) {
       this.interestedSockets.delete(roomId);
-    } else {
-      this.interestedSockets.set(roomId, remainingUsers);
     }
-
     this.userRoomMappping.delete(user.userId);
   }
 }
 
-export const socketManager = SocketManager.getInstance();
+export const socketManager = SocketManager.getInstance()
