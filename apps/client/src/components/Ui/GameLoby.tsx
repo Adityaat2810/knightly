@@ -5,9 +5,9 @@ import { useSocket } from '../../hooks/useNewSocket';
 import { INIT_GAME, JOIN_ROOM } from '../../types';
 
 
-export default function GameLobby({ user, onGameCreated }:{
+export default function GameLobby({ user, socket }:{
   user:User,
-  onGameCreated:(newGameId:string)=>void
+  socket: WebSocket | null
 }) {
   const [gameId, setGameId] = useState('');
   const [joinGameId, setJoinGameId] = useState('');
@@ -29,10 +29,6 @@ export default function GameLobby({ user, onGameCreated }:{
     { value: '15+10', label: '15+10', type: 'Rapid' },
     { value: '30+0', label: '30 min', type: 'Classical' }
   ];
-
-
-  const socket = useSocket();
-
 
   const createGame = async () => {
     socket?.send(

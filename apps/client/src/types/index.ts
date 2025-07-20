@@ -10,3 +10,23 @@ export const USER_TIMEOUT = 'user_timeout';
 export const GAME_TIME = 'game_time';
 export const GAME_ENDED = 'game_ended';
 export const EXIT_GAME = 'exit_game';
+
+export type Result = 'WHITE_WINS' | 'BLACK_WINS' | 'DRAW';
+
+export interface Player {
+  id: string;
+  name: string;
+  isGuest: boolean;
+}
+
+export interface Metadata {
+  blackPlayer: Player;
+  whitePlayer: Player;
+}
+
+
+export interface GameResult {
+  result: Result;
+  by: string;
+}
+

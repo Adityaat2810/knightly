@@ -5,6 +5,7 @@ import Game from './pages/Game'
 import Login from './pages/Login'
 import GameRandom from './pages/GameRandom'
 import { Suspense } from 'react';
+import { Layout } from './layout'
 
 function App() {
 
@@ -18,7 +19,9 @@ function App() {
               <Route path='/' element={<Landing/>}/>
               <Route path='/login' element={<Login/>}/>
               <Route path='/game' element={<Game/>}/>
-              <Route path='/game/random' element={<GameRandom/>}/>
+              <Route path='/game/random/:gameId' element={
+                <Layout><GameRandom/></Layout>
+              }/>
 
 
             </Routes>
