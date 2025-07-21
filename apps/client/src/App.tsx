@@ -19,7 +19,7 @@ function App() {
               <Route path='/' element={<Landing/>}/>
               <Route path='/login' element={<Login/>}/>
               <Route path='/game' element={<Game/>}/>
-              <Route path='/game/random/:gameId' element={
+              <Route path='/game/:gameId' element={
                 <Layout><GameRandom/></Layout>
               }/>
 
