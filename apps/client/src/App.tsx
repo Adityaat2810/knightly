@@ -10,7 +10,7 @@ import { Layout } from './layout'
 function App() {
 
   return (
-    <div className='h-screen bg-slate-900'>
+    <div className='h-screen'>
 
         <Suspense fallback={<div>Loading....</div>}>
 

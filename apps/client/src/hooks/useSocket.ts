@@ -1,9 +1,12 @@
 import { useEffect, useState, useRef } from "react";
+import { useUser } from "./useUser";
 
-const WS_URL = "ws://localhost:8080";
+const WS_URL = import.meta.env.VITE_APP_WS_URL ?? 'ws://localhost:8080';
 
 export const useSocket = () => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  const user = useUser()
+
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('connecting');
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reconnectAttempts = useRef(0);
@@ -14,7 +17,8 @@ export const useSocket = () => {
     setConnectionStatus('connecting');
 
     try {
-      const ws = new WebSocket(WS_URL);
+      const ws = new WebSocket(`${WS_URL}?token=${user.token}`);
+
 
       ws.onopen = () => {
         setSocket(ws);
