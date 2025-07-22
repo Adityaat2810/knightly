@@ -1,17 +1,25 @@
 import { WebSocketServer } from 'ws';
 import { GameManager } from './GameManager';
 import { User } from './SocketManager';
+import url from 'url'
 import { randomUUID } from 'crypto';
+import { extractAuthUser } from './auth';
 
 const wss = new WebSocketServer({ port: 8080 });
 
 const gameManager = new GameManager()
 
-wss.on('connection', function connection(ws){
-  const guestName = `Guest-${Math.floor(Math.random() * 10000)}`;
-  const user = new User(ws, randomUUID(), guestName, true);
+wss.on('connection', function connection(ws, req){
 
-  // Add to game manager
-  gameManager.addUser(user);
+  const token:
+    string | string[] |  undefined
+   = url.parse(req.url !!, true).query.token;
+
+  if(token){
+    const user  =  extractAuthUser(token as string , ws);
+    // Add to game manager
+    gameManager.addUser(user);
+  }
+
   ws.on("disconnect", ()=> gameManager.removeUser(ws))
 })

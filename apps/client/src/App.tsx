@@ -5,11 +5,12 @@ import Game from './pages/Game'
 import Login from './pages/Login'
 import GameRandom from './pages/GameRandom'
 import { Suspense } from 'react';
+import { Layout } from './layout'
 
 function App() {
 
   return (
-    <div className='h-screen bg-slate-900'>
+    <div className='h-screen'>
 
         <Suspense fallback={<div>Loading....</div>}>
 
@@ -18,7 +19,9 @@ function App() {
               <Route path='/' element={<Landing/>}/>
               <Route path='/login' element={<Login/>}/>
               <Route path='/game' element={<Game/>}/>
-              <Route path='/game/random' element={<GameRandom/>}/>
+              <Route path='/game/:gameId' element={
+                <Layout><GameRandom/></Layout>
+              }/>
 
 
             </Routes>

@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { EXIT_GAME, GAME_ADDED, GAME_ALERT, GAME_ENDED, GAME_JOINED, GAME_NOT_FOUND, INIT_GAME, JOIN_GAME, MOVE } from "./messages";
+import { EXIT_GAME, GAME_ADDED, GAME_ALERT, GAME_ENDED, GAME_JOINED, GAME_NOT_FOUND, INIT_GAME, JOIN_GAME, JOIN_ROOM, MOVE } from "./messages";
 import { Game } from "./Game";
 import { socketManager, User } from "./SocketManager";
 import { db } from "./db";
@@ -22,15 +22,6 @@ export class GameManager{
     async addUser(user: User){
       console.log('Adding user');
       this.users.push(user)
-      // TODO: tempory bypass user from authentication 
-      await db.user.create({
-        data: {
-          id: user.userId,
-          name: user.name,
-          email: `user@${user.userId}.example.com`,
-          provider:'GUEST'
-        },
-      })
       this.addHandler(user)
     }
 
@@ -125,27 +116,15 @@ export class GameManager{
         }
 
         // Join room
-        if(message.type === JOIN_GAME){
-          console.log('User trying to join game');
-          const gameId = message.payload?.gameId
-          console.log('Game ID:', gameId);
-          if(!gameId) return;
-
-          let availableGame = this.games.find(
-            (game)=> game.gameId === gameId
-          )
-          console.log('Available game found:', availableGame);
-
-
-
-
-          if(availableGame && !availableGame.player2UserId){
-            socketManager.addUser(user, availableGame.gameId)
-            await availableGame.updateSecondPlayer(user.userId)
+        if (message.type === JOIN_ROOM) {
+          console.log(`message is`, message)
+          const gameId = message.payload?.gameId;
+          if (!gameId) {
             return;
           }
 
-
+          let availableGame = this.games.find((game) => game.gameId === gameId);
+          console.log(`available game is `, availableGame)
           const gameFromDb = await db.game.findUnique({
             where: { id: gameId },
             include: {
@@ -159,12 +138,25 @@ export class GameManager{
             },
           });
 
-          if(!gameFromDb){
+          console.log(`game from db is `, gameFromDb)
+
+          // There is a game created but no second player available
+
+          if (availableGame && !availableGame.player2UserId) {
+            console.log(`here adding user2 `)
+            socketManager.addUser(user, availableGame.gameId);
+            await availableGame.updateSecondPlayer(user.userId);
+            console.log(`done adding user2`, availableGame)
+            return;
+          }
+
+          if (!gameFromDb) {
+            console.log(`game not found `)
             user.socket.send(
               JSON.stringify({
-                type: GAME_NOT_FOUND
-              })
-            )
+                type: GAME_NOT_FOUND,
+              }),
+            );
             return;
           }
 
@@ -224,7 +216,6 @@ export class GameManager{
           );
 
           socketManager.addUser(user, gameId);
-
         }
       })
     }

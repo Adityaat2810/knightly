@@ -1,12 +1,13 @@
 import  { useState } from 'react';
 import { Copy, Users, Play, Clock, Crown, Shield } from 'lucide-react';
 import type { User } from '@repo/store/userAtom';
+import { useSocket } from '../../hooks/useNewSocket';
+import { INIT_GAME, JOIN_ROOM } from '../../types';
 
-const BACKEND_URL = 'http://localhost:3000';
 
-export default function GameLobby({ user, onGameCreated }:{
+export default function GameLobby({ user, socket }:{
   user:User,
-  onGameCreated:(newGameId:string)=>void
+  socket: WebSocket | null
 }) {
   const [gameId, setGameId] = useState('');
   const [joinGameId, setJoinGameId] = useState('');
@@ -29,88 +30,28 @@ export default function GameLobby({ user, onGameCreated }:{
     { value: '30+0', label: '30 min', type: 'Classical' }
   ];
 
-  const generateGameId = () => {
-    return Math.random().toString(36).substring(2, 10).toUpperCase();
-  };
-
   const createGame = async () => {
-    if (!user) {
-      setError('Please log in to create a game');
-      return;
-    }
-
-    setIsCreating(true);
-    setError('');
-
-    try {
-      const newGameId = generateGameId();
-
-      const response = await fetch(`${BACKEND_URL}/game/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          gameId: newGameId,
-          settings: gameSettings
-        })
-      });
-
-      if (response.ok) {
-        setGameId(newGameId);
-        onGameCreated?.(newGameId);
-      } else {
-        setError('Failed to create game. Please try again.');
-      }
-    } catch (err) {
-      setError('Network error. Please try again.');
-      console.error('Create game error:', err);
-    } finally {
-      setIsCreating(false);
-    }
+    socket?.send(
+      JSON.stringify({
+        type: INIT_GAME,
+      }),
+    );
   };
 
   const joinGame = async () => {
-    if (!joinGameId.trim()) {
-      setError('Please enter a game ID');
+    console.log('Joining game with ID:', joinGameId);
+    if(!gameId.trim()) {
+      setError('Please enter a valid Game ID');
       return;
     }
-
-    if (!user) {
-      setError('Please log in to join a game');
-      return;
-    }
-
-    setIsJoining(true);
-    setError('');
-
-    try {
-      const response = await fetch(`${BACKEND_URL}/game/join`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
+    socket?.send(
+      JSON.stringify({
+        type: JOIN_ROOM,
+        payload: {
+          gameId,
         },
-        credentials: 'include',
-        body: JSON.stringify({
-          gameId: joinGameId.trim().toUpperCase()
-        })
-      });
-
-      if (response.ok) {
-        window.location.href = `/game/${joinGameId.trim().toUpperCase()}`;
-      } else {
-        const data = await response.json();
-        setError(data.message || 'Failed to join game');
-      }
-    } catch (err) {
-      setError('Network error. Please try again.');
-      console.error('Join game error:', err);
-    } finally {
-      setIsJoining(false);
-    }
+      }),
+    );
   };
 
   const copyGameId = async () => {
