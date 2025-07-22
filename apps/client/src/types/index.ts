@@ -15,11 +15,6 @@ export const EXIT_GAME = 'exit_game';
 
 export type Result = 'WHITE_WINS' | 'BLACK_WINS' | 'DRAW';
 
-export interface Player {
-  id: string;
-  name: string;
-  isGuest: boolean;
-}
 
 export interface Metadata {
   blackPlayer: Player;
@@ -32,3 +27,30 @@ export interface GameResult {
   by: string;
 }
 
+export interface Player {
+  id: string;
+  name: string;
+  isGuest?: boolean;
+}
+
+export interface GameMove {
+  from: string;
+  to: string;
+  san?: string;
+  before?: string;
+  after?: string;
+  moveNumber?: number;
+  timeTaken?: number;
+}
+
+export interface GameState {
+  gameId: string | null;
+  whitePlayer: Player | null;
+  blackPlayer: Player | null;
+  moves: GameMove[];
+  currentTurn: 'w' | 'b';
+  status: 'WAITING' | 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED' | 'TIME_UP' | 'PLAYER_EXIT';
+  result: 'WHITE_WINS' | 'BLACK_WINS' | 'DRAW' | null;
+  player1TimeConsumed: number;
+  player2TimeConsumed: number;
+}

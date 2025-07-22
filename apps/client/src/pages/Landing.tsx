@@ -49,7 +49,7 @@ const Landing: React.FC = () => {
   );
 
   const handlePlayOnline = (): void => {
-    naviagte('/game')
+    alert('Play Online feature is under development!');
   };
 
   const handlePlayWithFriend = (): void => {
