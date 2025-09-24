@@ -8,11 +8,18 @@
     "./userAtom": "./src/atoms/user.ts",
     "./chessBoard": "./src/atoms/chessBoard.ts"
   },
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsc -w"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "chess.js": "^1.4.0",
     "recoil": "^0.7.7"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
   }
 }
