@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "rootDirectory": "apps/client",
-  "buildCommand": "pnpm install && pnpm turbo run build --filter=client...",
-  "outputDirectory": "apps/client/dist"
+  "buildCommand": "pnpm install && pnpm run build",
+  "outputDirectory": "dist"
 }
