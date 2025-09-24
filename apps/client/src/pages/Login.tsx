@@ -5,7 +5,7 @@ import { useRecoilState } from 'recoil';
 import { userAtom } from '@repo/store/userAtom';
 
 const BACKEND_URL =
-  import.meta.env.VITE_APP_BACKEND_URL ?? 'http://localhost:3000';
+  import.meta.env.VITE_APP_BACKEND_URL;
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ const Login: React.FC = () => {
   const guestName = useRef<HTMLInputElement>(null);
 
   const handleGitHubLogin = () => {
-    window.location.href = "http://localhost:3000/auth/github";
+    window.location.href = import.meta.env.VITE_APP_BACKEND_URL+"/auth/github";
   };
 
   const loginAsGuest = async () => {

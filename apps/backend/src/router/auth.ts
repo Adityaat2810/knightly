@@ -7,7 +7,7 @@ import { COOKIE_MAX_AGE } from '../consts';
 
 const router = Router();
 
-const CLIENT_URL = process.env.AUTH_REDIRECT_URL ?? 'http://localhost:5173/game/random';
+const CLIENT_URL = process.env.AUTH_REDIRECT_URL ;
 const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
 
 interface userJwtClaims {
@@ -106,7 +106,7 @@ router.get('/logout', (req: Request, res: Response) => {
       res.status(500).json({ error: 'Failed to log out' });
     } else {
       res.clearCookie('jwt');
-      res.redirect('http://localhost:5173/');
+      res.redirect(process.env.AUTH_BASE_URL!);
     }
   });
 });
