@@ -1,8 +1,6 @@
 import { WebSocketServer } from 'ws';
 import { GameManager } from './GameManager';
-import { User } from './SocketManager';
 import url from 'url'
-import { randomUUID } from 'crypto';
 import { extractAuthUser } from './auth';
 
 const wss = new WebSocketServer({ port: 8080 });
