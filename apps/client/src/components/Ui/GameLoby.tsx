@@ -1,7 +1,6 @@
 import  { useState } from 'react';
 import { Copy, Users, Play, Clock, Crown, Shield } from 'lucide-react';
 import type { User } from '@repo/store/userAtom';
-import { useSocket } from '../../hooks/useNewSocket';
 import { INIT_GAME, JOIN_ROOM } from '../../types';
 
 
@@ -11,8 +10,8 @@ export default function GameLobby({ user, socket }:{
 }) {
   const [gameId, setGameId] = useState('');
   const [joinGameId, setJoinGameId] = useState('');
-  const [isCreating, setIsCreating] = useState(false);
-  const [isJoining, setIsJoining] = useState(false);
+  const [isCreating, ] = useState(false);
+  const [isJoining, ] = useState(false);
   const [gameSettings, setGameSettings] = useState({
     timeControl: '10+0',
     gameType: 'rated',
