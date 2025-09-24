@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "next.config.js", "use": "@vercel/next" }
-  ]
+  "rootDirectory": "apps/client",
+  "buildCommand": "pnpm install && pnpm turbo run build --filter=client...",
+  "outputDirectory": "apps/client/dist"
 }
